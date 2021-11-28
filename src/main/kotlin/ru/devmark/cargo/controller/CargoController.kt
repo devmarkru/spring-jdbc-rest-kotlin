@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import ru.devmark.cargo.dto.CargoDto
 import ru.devmark.cargo.service.CargoService
@@ -18,7 +19,9 @@ class CargoController(
 ) {
 
     @GetMapping
-    fun getAll(): List<CargoDto> = cargoService.getAll()
+    fun getAll(
+        @RequestParam("page") pageIndex: Int,
+    ): List<CargoDto> = cargoService.getAll(pageIndex)
 
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Int): CargoDto = cargoService.getById(id)

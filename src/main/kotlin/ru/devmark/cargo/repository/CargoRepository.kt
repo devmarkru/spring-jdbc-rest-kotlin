@@ -4,7 +4,7 @@ import ru.devmark.cargo.model.Cargo
 
 interface CargoRepository {
 
-    fun getAll(): List<Cargo>
+    fun getAll(pageIndex: Int): List<Cargo>
 
     fun findById(id: Int): Cargo?
 

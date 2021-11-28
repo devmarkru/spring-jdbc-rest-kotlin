@@ -4,7 +4,7 @@ import ru.devmark.cargo.dto.CargoDto
 
 interface CargoService {
 
-    fun getAll(): List<CargoDto>
+    fun getAll(pageIndex: Int): List<CargoDto>
 
     fun getById(id: Int): CargoDto
 

@@ -13,9 +13,13 @@ class CargoRepositoryImpl(
     private val jdbcTemplate: NamedParameterJdbcTemplate,
 ) : CargoRepository {
 
-    override fun getAll(): List<Cargo> =
+    override fun getAll(pageIndex: Int): List<Cargo> =
         jdbcTemplate.query(
-            "select * from cargo order by title",
+            "select * from cargo order by id limit :limit offset :offset",
+            mapOf(
+                "limit" to PAGE_SIZE,
+                "offset" to PAGE_SIZE * pageIndex,
+            ),
             ROW_MAPPER
         )
 
@@ -65,6 +69,7 @@ class CargoRepositoryImpl(
     }
 
     private companion object {
+        const val PAGE_SIZE = 3
         val ROW_MAPPER = RowMapper<Cargo> { rs, _ ->
             Cargo(
                 id = rs.getInt("id"),
