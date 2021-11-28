@@ -26,6 +26,10 @@ class CargoController(
     @GetMapping("/{id}")
     fun getById(@PathVariable id: Int): CargoDto = cargoService.getById(id)
 
+    @GetMapping("/statistics")
+    fun getCarStatistics(): Map<String, Int> =
+        cargoService.getCarStatistics()
+
     @PostMapping
     fun create(@RequestBody dto: CargoDto): Int =
         cargoService.create(dto)

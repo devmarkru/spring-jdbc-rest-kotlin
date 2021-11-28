@@ -13,4 +13,6 @@ interface CargoRepository {
     fun update(id: Int, title: String, passengerCount: Int?)
 
     fun deleteById(id: Int)
+
+    fun getCarStatistics(): Map<String, Int>
 }
