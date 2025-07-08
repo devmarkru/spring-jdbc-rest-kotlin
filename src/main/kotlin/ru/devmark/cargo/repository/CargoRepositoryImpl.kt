@@ -2,8 +2,7 @@ package ru.devmark.cargo.repository
 
 import org.springframework.jdbc.core.ResultSetExtractor
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.core.simple.JdbcClient
 import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import ru.devmark.cargo.model.Cargo
@@ -11,71 +10,59 @@ import ru.devmark.cargo.util.getIntOrNull
 
 @Repository
 class CargoRepositoryImpl(
-    private val jdbcTemplate: NamedParameterJdbcTemplate,
+    private val jdbcClient: JdbcClient,
 ) : CargoRepository {
 
     override fun getAll(pageIndex: Int): List<Cargo> =
-        jdbcTemplate.query(
-            "select * from cargo order by id limit :limit offset :offset",
-            mapOf(
-                "limit" to PAGE_SIZE,
-                "offset" to PAGE_SIZE * pageIndex,
-            ),
-            ROW_MAPPER
-        )
+        jdbcClient
+            .sql("select * from cargo order by id limit :limit offset :offset")
+            .param("limit", PAGE_SIZE)
+            .param("offset", PAGE_SIZE * pageIndex)
+            .query(ROW_MAPPER)
+            .list()
 
     override fun findById(id: Int): Cargo? =
-        jdbcTemplate.query(
-            "select * from cargo where id = :id",
-            mapOf(
-                "id" to id,
-            ),
-            ROW_MAPPER
-        ).firstOrNull()
+        jdbcClient
+            .sql("select * from cargo where id = :id")
+            .param("id", id)
+            .query(ROW_MAPPER)
+            .optional()
+            .orElse(null)
 
     override fun create(title: String, passengerCount: Int?): Int {
         val keyHolder = GeneratedKeyHolder()
-        jdbcTemplate.update(
-            "insert into cargo (title, passenger_count) values (:title, :passengerCount)",
-            MapSqlParameterSource(
-                mapOf(
-                    "title" to title,
-                    "passengerCount" to passengerCount,
-                )
-            ),
-            keyHolder,
-            listOf("id").toTypedArray()
-        )
+        jdbcClient
+            .sql("insert into cargo (title, passenger_count) values (:title, :passengerCount)")
+            .param("title", title)
+            .param("passengerCount", passengerCount)
+            .update(keyHolder, "id")
         return keyHolder.keys?.getValue("id") as Int
     }
 
     override fun update(id: Int, title: String, passengerCount: Int?) {
-        jdbcTemplate.update(
-            "update cargo set title = :title, passenger_count = :passengerCount where id = :id",
-            mapOf(
-                "id" to id,
-                "title" to title,
-                "passengerCount" to passengerCount,
-            )
-        )
+        jdbcClient
+            .sql("update cargo set title = :title, passenger_count = :passengerCount where id = :id")
+            .param("id", id)
+            .param("title", title)
+            .param("passengerCount", passengerCount)
+            .update()
     }
 
     override fun deleteById(id: Int) {
-        jdbcTemplate.update(
-            "delete from cargo where id = :id",
-            mapOf(
-                "id" to id,
-            )
-        )
+        jdbcClient
+            .sql("delete from cargo where id = :id")
+            .param("id", id)
+            .update()
     }
 
     override fun getCarStatistics(): Map<String, Int> =
-        jdbcTemplate.query(
-            """select cb.title, count(c.id) from cargo c
+        jdbcClient
+            .sql(
+                """select cb.title, count(c.id) from cargo c
                    join car_brand cb on c.brand_id = cb.id
-                   group by cb.title""",
-            EXTRACTOR,
-        )!!
+                   group by cb.title"""
+            )
+            .query(EXTRACTOR)
 
     private companion object {
         const val PAGE_SIZE = 3
@@ -96,5 +83,4 @@ class CargoRepositoryImpl(
             }
             result
         }
-    }
-}
+    }}
