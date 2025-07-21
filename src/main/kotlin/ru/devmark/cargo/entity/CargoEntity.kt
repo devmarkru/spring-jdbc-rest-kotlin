@@ -1,6 +1,6 @@
-package ru.devmark.cargo.model
+package ru.devmark.cargo.entity
 
-data class Cargo(
+data class CargoEntity(
     val id: Int = 0,
     val title: String,
     val passengerCount: Int? = null,
