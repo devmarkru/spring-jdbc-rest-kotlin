@@ -76,11 +76,12 @@ class CargoRepository(
 
         val EXTRACTOR = ResultSetExtractor<Map<String, Int>> { rs ->
             val result = mutableMapOf<String, Int>()
-            while(rs.next()) {
+            while (rs.next()) {
                 val title = rs.getString("title")
                 result.getOrPut(title) { 0 }
                 result[title] = result.getValue(title) + rs.getInt("count")
             }
             result
         }
-    }}
+    }
+}
